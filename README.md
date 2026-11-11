@@ -1,72 +1,122 @@
-# Sistema de gestión de comercio – Python y PostgreSQL
+# Trabajo práctico – Gestión de comercio con Python y PostgreSQL
 
-## Datos del estudiante
-- **Estudiante:** Miguel Ángel Salinas Fernández
-- **Lenguaje:** Python 3
-- **Base de datos:** PostgreSQL
-- **Biblioteca:** psycopg2
-- **Base de datos utilizada:** `comercio`
+**Asignatura:** Optativo I – Python  
+**Tema:** Conexión a bases de datos y operaciones CRUD  
+**Alumno/a:** Completar con tu nombre
 
 ## Descripción
-Este repositorio reúne ejercicios de Python conectados a una base de datos PostgreSQL. Los programas permiten consultar, insertar, modificar y eliminar registros de clientes, pedidos y productos.
+
+Este repositorio contiene programas de Python que se conectan a una base de datos **PostgreSQL** llamada `comercio`.
+Permiten registrar, consultar, modificar y eliminar **clientes, productos y pedidos** mediante instrucciones SQL.
+Cada programa puede ejecutarse por separado desde la terminal.
+
+> A diferencia del repositorio usado como referencia (ejercicios de POO), este trabajo se centra en operaciones CRUD y relaciones entre tablas.
 
 ## Archivos del proyecto
 
 | Archivo | Función |
-|---|---|
-| `conexion.py` | Inserta varios clientes mediante `executemany`. |
-| `Cliente.py` | Contiene una consulta de datos de clientes. Revisar el nombre de columna indicado en el SQL antes de ejecutarlo. |
-| `ConsultarCliente.py` | Muestra los clientes registrados. |
-| `ConsultarPedido.py` | Muestra pedidos junto con el nombre del cliente y del producto. |
-| `BorrarCliente.py` | Muestra y permite eliminar un cliente por su identificador. |
-| `BorrarPedido.py` | Muestra y permite eliminar un pedido por su identificador. |
-| `BorrarProducto.py` | Muestra y permite eliminar un producto por su identificador. |
+| --- | --- |
+| `conexion.py` | Crea y comprueba la conexión a PostgreSQL usando `.env`. |
+| `Cliente.py` | Inserta cuatro clientes de ejemplo. |
+| `Producto.py` | Inserta cuatro productos de ejemplo. |
+| `Pedido.py` | Inserta cuatro pedidos y muestra sus datos relacionados. |
+| `ConsultarCliente.py` | Muestra los clientes y permite cambiar la ciudad de uno. |
+| `ConsultarProducto.py` | Muestra los productos y permite cambiar el precio de uno. |
+| `ConsultarPedido.py` | Muestra los pedidos y permite cambiar la cantidad de uno. |
+| `BorrarCliente.py` | Elimina un cliente por su código. |
+| `BorrarProducto.py` | Elimina un producto por su código. |
+| `BorrarPedido.py` | Elimina un pedido por su código. |
+| `sql/esquema.sql` | Crea las tablas `clientes`, `productos` y `pedidos`. |
+| `requirements.txt` | Lista las bibliotecas necesarias. |
+| `.env.example` | Modelo de configuración de la base de datos, sin contraseña. |
+| `.gitignore` | Evita subir contraseñas y archivos temporales a GitHub. |
 
 ## Requisitos
-- Python 3
-- PostgreSQL
-- Una base de datos llamada `comercio`
-- Las tablas `clientes`, `pedidos` y `productos`, con las columnas utilizadas en las consultas
-- La biblioteca `psycopg2`
 
-## Instalación
-Instalar la dependencia con:
+- Python 3.10 o posterior.
+- PostgreSQL instalado y funcionando (por ejemplo, desde pgAdmin).
+- Acceso a una base de datos llamada `comercio`.
 
-```bash
-pip install -r requirements.txt
+## Cómo preparar el proyecto
+
+**1. Crear la base de datos.** En pgAdmin o en `psql`, crear una base llamada `comercio`:
+
+```sql
+CREATE DATABASE comercio;
 ```
 
-## Configurar la conexión
-Los programas usan estos datos de conexión:
-- Host: `localhost`
-- Puerto: `5432`
-- Base de datos: `comercio`
-- Usuario: `postgres`
+Seleccionar esa base y ejecutar el contenido de `sql/esquema.sql`. También se puede usar desde la terminal:
 
-Por seguridad, los archivos contienen `TU_CONTRASEÑA` como marcador y **no incluyen una contraseña real**. Antes de ejecutar un programa, reemplazá ese texto por la contraseña de tu propio servidor PostgreSQL. No publiques contraseñas en GitHub.
+```bash
+psql -U postgres -d comercio -f sql/esquema.sql
+```
 
-## Ejecutar los ejercicios
-Desde una terminal abierta en la carpeta del proyecto, ejecutar el archivo que se desea probar. Por ejemplo:
+> Si las tablas ya existen, el script `IF NOT EXISTS` no cambia su estructura. Comprueba que las columnas coincidan antes de ejecutar los programas.
+
+**2. Instalar las bibliotecas.** Abrir la terminal en la carpeta del proyecto y ejecutar:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+**3. Configurar la conexión.** Hacer una copia de `.env.example` y llamarla `.env`.
+Completar `DB_PASSWORD` con la contraseña **de tu propia instalación de PostgreSQL**.
+El archivo `.env` queda en tu computadora y **no debe publicarse**.
+
+**4. Probar la conexión.**
+
+```bash
+python conexion.py
+```
+
+## Cómo ejecutar los programas
+
+Para registrar datos por primera vez, ejecutar en este orden:
+
+```bash
+python Cliente.py
+python Producto.py
+python Pedido.py
+```
+
+Para consultar y modificar los datos:
 
 ```bash
 python ConsultarCliente.py
+python ConsultarProducto.py
+python ConsultarPedido.py
 ```
 
-También se pueden ejecutar los demás archivos:
+Para borrar registros:
 
 ```bash
-python ConsultarPedido.py
-python BorrarCliente.py
 python BorrarPedido.py
+python BorrarCliente.py
 python BorrarProducto.py
-python conexion.py
-python Cliente.py
 ```
 
-**Atención:** estos programas realizan operaciones reales sobre la base de datos. Los archivos `Borrar*.py` eliminan registros y `conexion.py` inserta clientes. Probá primero con datos de prueba.
+Algunos programas solicitan un código o un valor por teclado. Los archivos de registro agregan nuevos datos **cada vez que se ejecutan**; no son una carga única automática.
+
+## Tablas y relaciones
+
+- **clientes:** código, nombre, correo, ciudad y fecha de alta.
+- **productos:** código, nombre, precio y stock.
+- **pedidos:** código, cliente, producto, cantidad y fecha.
+
+Los pedidos se relacionan con clientes y productos mediante claves foráneas. Por eso, un cliente o producto que tenga pedidos asociados no se puede borrar directamente: primero se deben eliminar esos pedidos.
+
+## Conceptos utilizados
+
+- Conexión Python a PostgreSQL con `psycopg2`.
+- Consultas `SELECT`, `INSERT`, `UPDATE` y `DELETE`.
+- Relaciones de tablas mediante `INNER JOIN`.
+- Consultas parametrizadas (`%s`) y `executemany()`.
+- Validación básica de datos introducidos por teclado.
+- Confirmación (`commit`) y reversión (`rollback`) automáticas mediante el administrador de contexto de la conexión.
+- Variables de entorno para mantener privadas las credenciales.
 
 ## Observaciones
-- Los ejercicios dependen de que la base de datos y las tablas existan previamente.
-- Los nombres de tablas y columnas deben coincidir con los de tu base de datos.
-- `Cliente.py` contiene una consulta que usa `id_cliente` en el `ORDER BY`, mientras que otros ejercicios usan `id_clientes`. Verificá cuál es el nombre correcto en tu tabla antes de ejecutarlo.
-- Este repositorio contiene los siete archivos recibidos; no se agregaron ejercicios que no fueron enviados.
+
+Los tres archivos `Consultar...py` **también modifican** datos, tal como lo hacían los programas originales. Se normalizó el nombre `ConsultarProducto(1).py` a `ConsultarProducto.py`.
+
+No se incluye una base de datos real ni una contraseña. Para comprobar la ejecución completa es necesario tener PostgreSQL disponible localmente.
